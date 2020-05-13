@@ -21,8 +21,6 @@
 </template>
 
 <script>
-  import { mapActions } from 'vuex'
-
   export default {
     name: 'SearchBar',
     data: () => ({
@@ -35,7 +33,6 @@
       }
     },
     methods: {
-      ...mapActions(['getCharacters']),
       submitSearch () {
         this.submit(this.query)
       },

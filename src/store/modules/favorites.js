@@ -1,67 +1,59 @@
 const state = {
-  movies: null,
-  movie: null,
-  loadingMovies: false
+  favorites: null,
+  loadingFavorites: false
 }
 
 const getters = {
-  movies (state) {
-    return state.movies
+  favorites (state) {
+    return state.favorites
   },
-  movie (state) {
-    return state.movie
-  },
-  loadingMovies (state) {
-    return state.loadingMovies
+  loadingFavorites (state) {
+    return state.loadingFavorites
   }
 }
 
 const mutations = {
-  setMovies: (state, payload) => {
-    state.movies = payload
+  setFavorites: (state, payload) => {
+    state.favorites = payload
   },
-  setMovie: (state, payload) => {
-    state.movie = payload
-  },
-  setLoadingMovies: (state, payload) => {
-    state.loadingMovies = payload
+  setLoading: (state, payload) => {
+    state.loadingFavorites = payload
   }
 }
 
 const actions = {
-  getMovies ({ commit }, [page = 1, title = '']) {
-    commit('setMovies', null)
-    commit('setLoadingMovies', true)
+  getFavorites ({ commit }) {
+    commit('setFavorites', null)
+    commit('setLoading', true)
 
-    fetch('https://www.omdbapi.com/?s=' + title + '&apikey=1bc0a262&page=' + page)
-      .then(response => response.json())
-      .then(res => {
-        console.log('get movies res: ', res.Search)
-        commit('setMovies', res.Search)
-      })
-      .catch(err => {
-        console.log('Error occurred:', err)
-      })
-      .finally(() => {
-        commit('setLoadingMovies', false)
-      })
+    commit('setFavorites', JSON.parse(localStorage.getItem('favorites')))
+
+    commit('setLoading', false)
   },
-  getMovie ({ commit }, title) {
-    commit('setMovie', null)
-    commit('setLoadingMovies', true)
+  setFavorite: ({ commit }, payload) => {
+    commit('setLoading', true)
 
-    fetch('https://www.omdbapi.com/?t=' + title + '&apikey=1bc0a262')
-      .then(response => response.json())
-      .then(res => {
-        commit('setMovie', res.data)
-      })
-      .catch(e => {
-        console.log('Error occurred getMovie:', e)
-      })
-      .finally(() => {
-        commit('setLoadingMovies', false)
-      })
+    if (localStorage.getItem('favorites')) {
+      let favorites = JSON.parse(localStorage.getItem('favorites'))
+      localStorage.setItem('favorites', JSON.stringify([...favorites, payload]))
+    } else {
+      localStorage.setItem('favorites', JSON.stringify([payload]))
+    }
+
+    commit('setFavorites', JSON.parse(localStorage.getItem('favorites')))
+    commit('setLoading', false)
+  },
+  removeFavorite ({ commit }, payload) {
+    commit('setLoading', true)
+
+    let cleaned = JSON.parse(localStorage.getItem('favorites'))
+      .filter(item => item.imdbID !== payload.imdbID)
+
+    localStorage.setItem('favorites', JSON.stringify(cleaned))
+    commit('setFavorites', cleaned)
+    commit('setLoading', false)
   }
+
 }
 
 export default {

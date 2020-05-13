@@ -5,7 +5,7 @@
                 <div class="jumbotron jumbotron-fluid">
                     <div class="container text-center">
                         <h2 class="mb-4">
-                            Type character name to search...
+                            Type movie title to search...
                         </h2>
                         <div class="row">
                             <SearchBar :submit="submitSearch"/>
@@ -24,10 +24,10 @@
     name: 'SearchSection',
     components: { SearchBar },
     methods: {
-      ...mapActions(['getCharacters']),
+      ...mapActions(['getMovies']),
       submitSearch (query) {
         this.$router.push({ query: { page: 1, name: query } })
-        this.getCharacters([1, query])
+        this.getMovies([1, query])
       }
     }
   }

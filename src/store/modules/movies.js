@@ -1,69 +1,61 @@
-import axios from 'axios'
-import episodes from './episodes'
-
 const state = {
-  characters: null,
-  character: null,
-  loadingCharacters: false
+  movies: null,
+  error: null,
+  movie: null,
+  loadingMovies: false
 }
 
 const getters = {
-  characters (state) {
-    return state.characters
+  movies (state) {
+    return state.movies
   },
-  character (state) {
-    return state.character
+  movie (state) {
+    return state.movie
   },
-  loadingCharacters (state) {
-    return state.loadingCharacters
+  error (state) {
+    return state.error
+  },
+  loadingMovies (state) {
+    return state.loadingMovies
   }
 }
 
 const mutations = {
-  setCharacters: (state, payload) => {
-    state.characters = payload
+  setMovies: (state, payload) => {
+    state.movies = payload
   },
-  setCharacter: (state, payload) => {
-    state.character = payload
+  setError: (state, payload) => {
+    state.error = payload
   },
-  setLoadingCharacters: (state, payload) => {
-    state.loadingCharacters = payload
+  setLoading: (state, payload) => {
+    state.loadingMovies = payload
   }
 }
 
 const actions = {
-  getCharacters ({ commit }, [page = 1, name = '']) {
-    commit('setCharacters', null)
-    commit('setLoadingCharacters', true)
+  getMovies ({ commit }, [page = 1, title = '']) {
+    commit('setMovies', null)
+    commit('setError', null)
+    commit('setLoading', true)
 
-    axios.get('/character/?page=' + page + '&name=' + name)
+    fetch('https://www.omdbapi.com/?s=' + title + '&apikey=1bc0a262&page=' + page)
+      .then(response => response.json())
       .then(res => {
-        commit('setCharacters', res.data)
+        if(res.Error){
+          commit('setError', res.Error)
+        } else {
+          commit('setMovies', res.Search)
+        }
       })
       .catch(err => {
         console.log('Error occurred:', err)
       })
       .finally(() => {
-        commit('setLoadingCharacters', false)
+        commit('setLoading', false)
       })
   },
-  getCharacter ({ commit }, id) {
-    commit('setCharacter', null)
-    commit('setLoadingCharacters', true)
-
-    axios.get(`/character/${id}`)
-      .then(res => {
-        commit('setCharacter', res.data)
-
-        const episodesIds = res.data.episode.map(el => el.substring(el.lastIndexOf('/') + 1))
-        episodes.actions.getEpisodes({ commit }, episodesIds)
-      })
-      .catch(e => {
-        console.log('Error occurred getCharacter:', e)
-      })
-      .finally(() => {
-        commit('setLoadingCharacters', false)
-      })
+  resetMovies ({ commit }) {
+    commit('setMovies', [])
   }
 }
 
